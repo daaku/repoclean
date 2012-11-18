@@ -3,17 +3,21 @@ package main
 
 import (
 	"flag"
-	//	"github.com/daaku/go-alpm"
+	"github.com/daaku/go-alpm"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
-var repo = flag.String(
-	"repo",
-	filepath.Join(os.Getenv("HOME"), "pkgs", "repo"),
-	"repository directory")
+var (
+	repo = flag.String(
+		"repo",
+		filepath.Join(os.Getenv("HOME"), "pkgs", "repo"),
+		"repository directory")
+	keep = flag.Uint("keep", 2, "versions to keep")
+)
 
 type Arch string
 
@@ -51,13 +55,27 @@ func (f *File) String() string {
 	return strings.Join([]string{f.Name, f.Version, string(f.Arch)}, "-")
 }
 
+type Files []*File
+
+func (f Files) Len() int      { return len(f) }
+func (f Files) Swap(i, j int) { f[i], f[j] = f[j], f[i] }
+
+type ByVersion struct{ Files }
+
+func (f ByVersion) Less(i, j int) bool {
+	if alpm.VerCmp(f.Files[i].Version, f.Files[j].Version) == 1 {
+		return true
+	}
+	return false
+}
+
 type Repo struct {
 	Files map[string][]*File
 }
 
 func ParseRepo(path string) (*Repo, error) {
 	repo := &Repo{Files: make(map[string][]*File)}
-	return repo, filepath.Walk(
+	err := filepath.Walk(
 		path,
 		func(path string, info os.FileInfo, err error) error {
 			if info.IsDir() {
@@ -73,6 +91,13 @@ func ParseRepo(path string) (*Repo, error) {
 			repo.Add(file)
 			return nil
 		})
+	if err != nil {
+		return nil, err
+	}
+	for _, files := range repo.Files {
+		sort.Sort(ByVersion{files})
+	}
+	return repo, nil
 }
 
 func (r *Repo) Add(file *File) {
