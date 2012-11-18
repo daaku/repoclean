@@ -16,7 +16,7 @@ var (
 		"repo",
 		filepath.Join(os.Getenv("HOME"), "pkgs", "repo"),
 		"repository directory")
-	keep = flag.Uint("keep", 2, "versions to keep")
+	keep = flag.Int("keep", 1, "versions to keep")
 )
 
 type Arch string
@@ -36,6 +36,7 @@ func ParseArch(suffix string) Arch {
 }
 
 type File struct {
+	Path    string
 	Name    string
 	Version string
 	Arch    Arch
@@ -45,6 +46,7 @@ func ParseFile(path string) (*File, error) {
 	parts := strings.Split(filepath.Base(path), "-")
 	l := len(parts)
 	return &File{
+		Path:    path,
 		Name:    strings.Join(parts[0:l-3], "-"),
 		Version: strings.Join(parts[l-3:l-1], "-"),
 		Arch:    ParseArch(parts[l-1]),
@@ -109,11 +111,25 @@ func (r *Repo) Add(file *File) {
 	}
 }
 
+func (r *Repo) Prune(keep int) error {
+	for _, files := range r.Files {
+		if len(files) > keep {
+			for _, file := range files[keep:len(files)] {
+				err := os.Remove(file.Path)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func main() {
 	flag.Parse()
 	repo, err := ParseRepo(*repo)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print(repo)
+	repo.Prune(*keep)
 }
