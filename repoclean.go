@@ -3,6 +3,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/daaku/go-alpm"
 	"log"
 	"os"
@@ -22,17 +23,22 @@ var (
 type Arch string
 
 const (
-	Any = "any"
-	X86 = "x86"
-	X64 = "x64"
+	Any   = "any"
+	X86   = "x86"
+	X64   = "x64"
+	Arm7H = "armv7h"
 )
 
 func ParseArch(suffix string) Arch {
 	switch suffix {
 	case "x86_64.pkg.tar.xz":
 		return X64
+	case "armv7h.pkg.tar.xz":
+		return Arm7H
+	case "any.pkg.tar.xz":
+		return Any
 	}
-	return Any
+	panic(fmt.Sprintf("unknown arch: %s", suffix))
 }
 
 type File struct {
@@ -103,7 +109,7 @@ func ParseRepo(path string) (*Repo, error) {
 }
 
 func (r *Repo) Add(file *File) {
-	files, ok := r.Files[file.Name]
+	files, ok := r.Files[file.Name+string(file.Arch)]
 	if ok {
 		r.Files[file.Name] = append(files, file)
 	} else {
