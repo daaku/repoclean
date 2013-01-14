@@ -109,11 +109,12 @@ func ParseRepo(path string) (*Repo, error) {
 }
 
 func (r *Repo) Add(file *File) {
-	files, ok := r.Files[file.Name+string(file.Arch)]
+	name := file.Name + string(file.Arch)
+	files, ok := r.Files[name]
 	if ok {
-		r.Files[file.Name] = append(files, file)
+		r.Files[name] = append(files, file)
 	} else {
-		r.Files[file.Name] = []*File{file}
+		r.Files[name] = []*File{file}
 	}
 }
 
