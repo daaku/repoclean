@@ -26,6 +26,7 @@ const (
 	Any   = "any"
 	X86   = "x86"
 	X64   = "x64"
+	Arm6H = "armv6h"
 	Arm7H = "armv7h"
 )
 
@@ -33,6 +34,8 @@ func ParseArch(suffix string) Arch {
 	switch suffix {
 	case "x86_64.pkg.tar.xz":
 		return X64
+	case "armv6h.pkg.tar.xz":
+		return Arm6H
 	case "armv7h.pkg.tar.xz":
 		return Arm7H
 	case "any.pkg.tar.xz":
