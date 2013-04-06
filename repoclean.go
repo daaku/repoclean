@@ -4,7 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/daaku/go-alpm"
+	"github.com/daaku/go.alpm"
 	"log"
 	"os"
 	"path/filepath"
