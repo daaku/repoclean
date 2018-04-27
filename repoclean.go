@@ -4,19 +4,17 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/daaku/go.alpm"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/daaku/go.alpm"
 )
 
 var (
-	repo = flag.String(
-		"repo",
-		filepath.Join(os.Getenv("HOME"), "pkgs", "repo"),
-		"repository directory")
+	repo = flag.String("repo", "/var/lib/pkgrepo", "repository directory")
 	keep = flag.Int("keep", 1, "versions to keep")
 )
 
