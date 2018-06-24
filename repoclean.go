@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/daaku/go.alpm"
+	"github.com/Jguer/go-alpm"
 )
 
 var (
